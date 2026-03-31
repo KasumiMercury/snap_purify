@@ -3,24 +3,31 @@ import snap_purify
 
 Item {
     id: canvas
+    clip: true
 
     property int selectedMarkerIndex: -1
 
-    // --- Coordinate conversion helpers ---
-    // Display offset: where the painted image starts within the Image element
-    readonly property real displayScale: img.paintedWidth > 0
-        ? img.paintedWidth / ImageManager.imageWidth : 1
-    readonly property real offsetX: (img.width - img.paintedWidth) / 2
-    readonly property real offsetY: (img.height - img.paintedHeight) / 2
+    // --- Zoom / Pan state ---
+    property real zoomLevel: 1.0
+    property real panX: 0.0
+    property real panY: 0.0
 
-    function imageToDisplayX(ix) { return ix * displayScale + offsetX }
-    function imageToDisplayY(iy) { return iy * displayScale + offsetY }
-    function imageToDisplayW(iw) { return iw * displayScale }
-    function imageToDisplayH(ih) { return ih * displayScale }
-    function displayToImageX(dx) { return (dx - offsetX) / displayScale }
-    function displayToImageY(dy) { return (dy - offsetY) / displayScale }
-    function displayToImageW(dw) { return dw / displayScale }
-    function displayToImageH(dh) { return dh / displayScale }
+    // --- Derived scale and origin ---
+    readonly property real baseScale: (ImageManager.hasImage && ImageManager.imageWidth > 0 && ImageManager.imageHeight > 0)
+        ? Math.min(width / ImageManager.imageWidth, height / ImageManager.imageHeight) : 1
+    readonly property real effectiveScale: baseScale * zoomLevel
+    readonly property real imgOriginX: (width - ImageManager.imageWidth * effectiveScale) / 2 + panX
+    readonly property real imgOriginY: (height - ImageManager.imageHeight * effectiveScale) / 2 + panY
+
+    // --- Coordinate conversion helpers ---
+    function imageToDisplayX(ix) { return ix * effectiveScale + imgOriginX }
+    function imageToDisplayY(iy) { return iy * effectiveScale + imgOriginY }
+    function imageToDisplayW(iw) { return iw * effectiveScale }
+    function imageToDisplayH(ih) { return ih * effectiveScale }
+    function displayToImageX(dx) { return (dx - imgOriginX) / effectiveScale }
+    function displayToImageY(dy) { return (dy - imgOriginY) / effectiveScale }
+    function displayToImageW(dw) { return dw / effectiveScale }
+    function displayToImageH(dh) { return dh / effectiveScale }
 
     // Clamp image-coord rect to image bounds
     function clampRect(ix, iy, iw, ih) {
@@ -33,32 +40,79 @@ Item {
         return { x: x, y: y, width: w, height: h }
     }
 
+    // --- Zoom at cursor position ---
+    function zoomAt(mouseX, mouseY, factor) {
+        let imgPtX = (mouseX - imgOriginX) / effectiveScale
+        let imgPtY = (mouseY - imgOriginY) / effectiveScale
+        let newZoom = Math.max(0.1, Math.min(zoomLevel * factor, 20))
+        let newES = baseScale * newZoom
+        let newCenterX = (width - ImageManager.imageWidth * newES) / 2
+        let newCenterY = (height - ImageManager.imageHeight * newES) / 2
+        panX = mouseX - imgPtX * newES - newCenterX
+        panY = mouseY - imgPtY * newES - newCenterY
+        zoomLevel = newZoom
+    }
+
     Image {
         id: img
-        anchors.fill: parent
+        x: canvas.imgOriginX
+        y: canvas.imgOriginY
+        width: ImageManager.imageWidth * canvas.effectiveScale
+        height: ImageManager.imageHeight * canvas.effectiveScale
         visible: ImageManager.hasImage
         source: ImageManager.hasImage
                 ? "image://snapimage/current?rev=" + ImageManager.revision
                 : ""
-        fillMode: Image.PreserveAspectFit
+        fillMode: Image.Stretch
         asynchronous: false
         cache: false
     }
 
-    // --- Drawing new rectangles ---
+    // --- Zoom with Ctrl+Scroll ---
+    WheelHandler {
+        enabled: ImageManager.hasImage
+        acceptedModifiers: Qt.ControlModifier
+        target: null
+
+        onWheel: function(event) {
+            let factor = event.angleDelta.y > 0 ? 1.15 : (1 / 1.15)
+            canvas.zoomAt(point.position.x, point.position.y, factor)
+        }
+    }
+
+    // --- Drawing new rectangles + Middle-button panning ---
     MouseArea {
         id: drawArea
         anchors.fill: parent
         enabled: ImageManager.hasImage
+        acceptedButtons: Qt.LeftButton | Qt.MiddleButton
 
         property bool drawing: false
         property real startX: 0
         property real startY: 0
 
+        property bool panning: false
+        property real panStartX: 0
+        property real panStartY: 0
+        property real panOrigX: 0
+        property real panOrigY: 0
+
         onPressed: function(mouse) {
+            // Middle button → pan
+            if (mouse.button === Qt.MiddleButton) {
+                panning = true
+                panStartX = mouse.x
+                panStartY = mouse.y
+                panOrigX = canvas.panX
+                panOrigY = canvas.panY
+                cursorShape = Qt.ClosedHandCursor
+                return
+            }
+
+            // Left button → draw marker
             // Only start drawing if click is within the painted image area
-            if (mouse.x < canvas.offsetX || mouse.x > canvas.offsetX + img.paintedWidth
-                || mouse.y < canvas.offsetY || mouse.y > canvas.offsetY + img.paintedHeight) {
+            if (mouse.x < canvas.imgOriginX || mouse.x > canvas.imgOriginX + img.width
+                || mouse.y < canvas.imgOriginY || mouse.y > canvas.imgOriginY + img.height) {
                 mouse.accepted = false
                 return
             }
@@ -75,9 +129,15 @@ Item {
         }
 
         onPositionChanged: function(mouse) {
+            if (panning) {
+                canvas.panX = panOrigX + (mouse.x - panStartX)
+                canvas.panY = panOrigY + (mouse.y - panStartY)
+                return
+            }
+
             if (!drawing) return
-            let x = Math.max(canvas.offsetX, Math.min(mouse.x, canvas.offsetX + img.paintedWidth))
-            let y = Math.max(canvas.offsetY, Math.min(mouse.y, canvas.offsetY + img.paintedHeight))
+            let x = Math.max(canvas.imgOriginX, Math.min(mouse.x, canvas.imgOriginX + img.width))
+            let y = Math.max(canvas.imgOriginY, Math.min(mouse.y, canvas.imgOriginY + img.height))
             previewRect.x = Math.min(startX, x)
             previewRect.y = Math.min(startY, y)
             previewRect.width = Math.abs(x - startX)
@@ -85,6 +145,12 @@ Item {
         }
 
         onReleased: function(mouse) {
+            if (panning) {
+                panning = false
+                cursorShape = Qt.ArrowCursor
+                return
+            }
+
             if (!drawing) return
             drawing = false
             previewRect.visible = false
@@ -282,5 +348,15 @@ Item {
         sequence: "Escape"
         enabled: canvas.selectedMarkerIndex >= 0
         onActivated: canvas.selectedMarkerIndex = -1
+    }
+
+    // Reset zoom/pan with Ctrl+0
+    Shortcut {
+        sequence: "Ctrl+0"
+        onActivated: {
+            canvas.zoomLevel = 1.0
+            canvas.panX = 0
+            canvas.panY = 0
+        }
     }
 }
