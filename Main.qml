@@ -42,15 +42,9 @@ Window {
             color: "#888888"
         }
 
-        Image {
+        ImageCanvas {
             anchors.fill: parent
             visible: ImageManager.hasImage
-            source: ImageManager.hasImage
-                    ? "image://snapimage/current?rev=" + ImageManager.revision
-                    : ""
-            fillMode: Image.PreserveAspectFit
-            asynchronous: false
-            cache: false
         }
     }
 }

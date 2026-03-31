@@ -13,12 +13,15 @@ qt_add_executable(appsnap_purify
     imagemanager.h
     imagemanager.cpp
     imageprovider.h
+    markermodel.h
+    markermodel.cpp
 )
 
 qt_add_qml_module(appsnap_purify
     URI snap_purify
     QML_FILES
         Main.qml
+        ImageCanvas.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
