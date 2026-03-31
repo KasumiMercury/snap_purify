@@ -28,6 +28,7 @@ public:
     QImage currentImage() const;
 
     Q_INVOKABLE bool loadFromFile(const QString &path);
+    Q_INVOKABLE bool loadFromClipboard();
     Q_INVOKABLE bool isAcceptedFormat(const QString &path) const;
 
 signals:
@@ -36,6 +37,8 @@ signals:
     void imageChanged();
 
 private:
+    void setImage(const QImage &image, const QString &fileName);
+
     QImage m_image;
     int m_revision = 0;
     QString m_fileName;

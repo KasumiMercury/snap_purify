@@ -1,6 +1,9 @@
 #include "imagemanager.h"
 
+#include <QClipboard>
 #include <QFileInfo>
+#include <QGuiApplication>
+#include <QMimeData>
 #include <QSet>
 
 static const QSet<QString> s_acceptedExtensions = {
@@ -54,9 +57,39 @@ bool ImageManager::loadFromFile(const QString &path)
         return false;
     }
 
+    setImage(newImage, QFileInfo(localPath).fileName());
+    return true;
+}
+
+bool ImageManager::loadFromClipboard()
+{
+    const QClipboard *clipboard = QGuiApplication::clipboard();
+    const QMimeData *mimeData = clipboard->mimeData();
+
+    if (mimeData->hasImage()) {
+        QImage image = qvariant_cast<QImage>(mimeData->imageData());
+        if (!image.isNull()) {
+            setImage(image, QStringLiteral("clipboard"));
+            return true;
+        }
+    }
+
+    if (mimeData->hasUrls()) {
+        for (const QUrl &url : mimeData->urls()) {
+            if (url.isLocalFile() && isAcceptedFormat(url.toLocalFile())) {
+                return loadFromFile(url.toLocalFile());
+            }
+        }
+    }
+
+    return false;
+}
+
+void ImageManager::setImage(const QImage &image, const QString &fileName)
+{
     bool wasEmpty = m_image.isNull();
-    m_image = newImage;
-    m_fileName = QFileInfo(localPath).fileName();
+    m_image = image;
+    m_fileName = fileName;
     m_revision++;
 
     emit imageChanged();
@@ -64,8 +97,6 @@ bool ImageManager::loadFromFile(const QString &path)
     if (wasEmpty) {
         emit hasImageChanged();
     }
-
-    return true;
 }
 
 bool ImageManager::isAcceptedFormat(const QString &path) const

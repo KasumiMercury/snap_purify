@@ -11,6 +11,11 @@ Window {
            : qsTr("snap_purify")
     color: "#1e1e1e"
 
+    Shortcut {
+        sequence: StandardKey.Paste
+        onActivated: ImageManager.loadFromClipboard()
+    }
+
     DropArea {
         anchors.fill: parent
 
