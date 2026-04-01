@@ -230,10 +230,24 @@ Window {
                         id: listItemMa
                         anchors.fill: parent
                         hoverEnabled: true
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: MarkerModel.selectedMarkerId = parent.markerId
+                        onClicked: function(mouse) {
+                            if (mouse.button === Qt.RightButton) {
+                                listMarkerMenu.targetMarkerId = parent.markerId
+                                listMarkerMenu.popup()
+                            } else {
+                                MarkerModel.selectedMarkerId = parent.markerId
+                            }
+                        }
                     }
                 }
+            }
+
+            MarkerContextMenu {
+                id: listMarkerMenu
+                targetMarkerId: -1
+                showGlobalActions: false
             }
 
             // Resize handle (bottom-right corner)

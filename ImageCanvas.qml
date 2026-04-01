@@ -205,16 +205,6 @@ Item {
                 border.width: 2
             }
 
-            Menu {
-                id: markerContextMenu
-                MenuItem {
-                    text: qsTr("削除")
-                    onTriggered: {
-                        MarkerModel.removeMarker(markerDelegate.markerId)
-                    }
-                }
-            }
-
             // Move handle (entire body)
             MouseArea {
                 id: moveArea
@@ -230,7 +220,8 @@ Item {
                 onPressed: function(mouse) {
                     if (mouse.button === Qt.RightButton) {
                         MarkerModel.selectedMarkerId = markerDelegate.markerId
-                        markerContextMenu.popup()
+                        canvasMarkerMenu.targetMarkerId = markerDelegate.markerId
+                        canvasMarkerMenu.popup()
                         return
                     }
                     MarkerModel.selectedMarkerId = markerDelegate.markerId
@@ -358,6 +349,12 @@ Item {
                 }
             }
         }
+    }
+
+    MarkerContextMenu {
+        id: canvasMarkerMenu
+        targetMarkerId: -1
+        showGlobalActions: true
     }
 
     // Delete selected marker
