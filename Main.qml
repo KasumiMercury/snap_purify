@@ -257,6 +257,7 @@ Window {
                     required property real markerY
                     required property real markerWidth
                     required property real markerHeight
+                    required property int markerShapeType
 
                     width: markerListView.width
                     height: 32
@@ -295,6 +296,7 @@ Window {
                         onClicked: function(mouse) {
                             if (mouse.button === Qt.RightButton) {
                                 listMarkerMenu.targetMarkerId = parent.markerId
+                                listMarkerMenu.targetShapeType = parent.markerShapeType
                                 listMarkerMenu.popup()
                             } else {
                                 MarkerModel.selectedMarkerId = parent.markerId

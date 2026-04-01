@@ -189,6 +189,7 @@ Item {
             required property real markerWidth
             required property real markerHeight
             required property real markerCornerRadius
+            required property int markerShapeType
 
             readonly property bool isSelected: MarkerModel.selectedMarkerId === markerId
             z: isSelected ? 1 : 0
@@ -198,13 +199,36 @@ Item {
             width: canvas.imageToDisplayW(markerWidth)
             height: canvas.imageToDisplayH(markerHeight)
 
-            // Marker border
+            // Marker border (rectangle with optional corner radius)
             Rectangle {
                 anchors.fill: parent
                 color: "transparent"
                 border.color: markerDelegate.isSelected ? Theme.accent : Theme.markerUnselected
                 border.width: 2
                 radius: canvas.imageToDisplayW(markerDelegate.markerCornerRadius)
+                visible: markerDelegate.markerShapeType === 0
+            }
+
+            // Marker border (ellipse)
+            Canvas {
+                id: ellipseCanvas
+                anchors.fill: parent
+                visible: markerDelegate.markerShapeType === 1
+                onPaint: {
+                    let ctx = getContext("2d")
+                    ctx.clearRect(0, 0, width, height)
+                    ctx.strokeStyle = markerDelegate.isSelected ? Theme.accent : Theme.markerUnselected
+                    ctx.lineWidth = 2
+                    ctx.beginPath()
+                    ctx.ellipse(1, 1, width - 2, height - 2)
+                    ctx.stroke()
+                }
+                onWidthChanged: requestPaint()
+                onHeightChanged: requestPaint()
+                Connections {
+                    target: markerDelegate
+                    function onIsSelectedChanged() { ellipseCanvas.requestPaint() }
+                }
             }
 
             // Move handle (entire body)
@@ -224,6 +248,7 @@ Item {
                     if (mouse.button === Qt.RightButton) {
                         MarkerModel.selectedMarkerId = markerDelegate.markerId
                         canvasMarkerMenu.targetMarkerId = markerDelegate.markerId
+                        canvasMarkerMenu.targetShapeType = markerDelegate.markerShapeType
                         canvasMarkerMenu.popup()
                         return
                     }

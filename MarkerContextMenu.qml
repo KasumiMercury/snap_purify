@@ -7,6 +7,7 @@ Menu {
 
     required property int targetMarkerId
     property bool showGlobalActions: false
+    property int targetShapeType: 0
 
     signal adjustCornerRadiusRequested(int markerId)
 
@@ -20,7 +21,20 @@ Menu {
 
     // --- Marker-specific actions ---
     MenuItem {
+        text: root.targetShapeType === 0 ? qsTr("Make Ellipse") : qsTr("Make Rectangle")
+        palette.text: Theme.textPrimary
+        palette.windowText: Theme.textPrimary
+        palette.buttonText: Theme.textPrimary
+        palette.highlightedText: Theme.textPrimary
+        onTriggered: {
+            let newType = root.targetShapeType === 0 ? 1 : 0
+            MarkerModel.updateMarkerShapeType(root.targetMarkerId, newType)
+        }
+    }
+    MenuItem {
         text: qsTr("Adjust Corner Radius")
+        visible: root.targetShapeType === 0
+        height: visible ? implicitHeight : -root.spacing
         palette.text: Theme.textPrimary
         palette.windowText: Theme.textPrimary
         palette.buttonText: Theme.textPrimary
