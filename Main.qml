@@ -260,7 +260,7 @@ Window {
                     required property int markerShapeType
                     required property int markerMode
 
-                    readonly property var modeLabels: ["Fill", "Mosaic", "Crop"]
+                    readonly property var modeLabels: ["Fill", "Mosaic", "Crop", "Cutout"]
 
                     width: markerListView.width
                     height: 32

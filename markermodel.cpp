@@ -129,7 +129,7 @@ void MarkerModel::updateMarkerMode(int id, int mode)
     if (row < 0)
         return;
 
-    m_markers[row].mode = qBound(0, mode, 2);
+    m_markers[row].mode = qBound(0, mode, 3);
     QModelIndex mi = createIndex(row, 0);
     emit dataChanged(mi, mi);
 }

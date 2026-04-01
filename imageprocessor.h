@@ -38,6 +38,7 @@ private slots:
 private:
     static QPainterPath shapePath(const MarkerData &marker);
     static void applyCrop(QImage &image, const QVector<MarkerData> &markers);
+    static void applyCutout(QImage &image, const QVector<MarkerData> &markers);
     static void applyFill(QImage &image, const MarkerData &marker);
     static void applyMosaic(QImage &image, const MarkerData &marker, int blockSize);
 

@@ -470,6 +470,7 @@ Item {
                     { value: 0, label: qsTr("Fill") },
                     { value: 1, label: qsTr("Mosaic") },
                     { value: 2, label: qsTr("Crop") },
+                    { value: 3, label: qsTr("Cutout") },
                 ]
                 delegate: Rectangle {
                     required property var modelData

@@ -93,13 +93,16 @@ QImage ImageProcessor::applyMarkers(const QImage &source, const QVector<MarkerDa
     // 1. Crop: make everything outside crop markers transparent
     applyCrop(result, markers);
 
-    // 2. Fill
+    // 2. Cutout: make everything inside cutout markers transparent
+    applyCutout(result, markers);
+
+    // 3. Fill
     for (const MarkerData &m : markers) {
         if (m.mode == 0)
             applyFill(result, m);
     }
 
-    // 3. Mosaic
+    // 4. Mosaic
     for (const MarkerData &m : markers) {
         if (m.mode == 1)
             applyMosaic(result, m, kMosaicBlockSize);
@@ -128,6 +131,24 @@ void ImageProcessor::applyCrop(QImage &image, const QVector<MarkerData> &markers
     QPainter painter(&image);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.fillPath(outside, Qt::transparent);
+}
+
+void ImageProcessor::applyCutout(QImage &image, const QVector<MarkerData> &markers)
+{
+    QPainterPath cutoutUnion;
+    bool hasCutout = false;
+    for (const MarkerData &m : markers) {
+        if (m.mode == 3) {
+            cutoutUnion = cutoutUnion.united(shapePath(m));
+            hasCutout = true;
+        }
+    }
+    if (!hasCutout)
+        return;
+
+    QPainter painter(&image);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.fillPath(cutoutUnion, Qt::transparent);
 }
 
 void ImageProcessor::applyFill(QImage &image, const MarkerData &marker)
