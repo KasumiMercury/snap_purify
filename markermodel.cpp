@@ -17,12 +17,14 @@ QVariant MarkerModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() < 0 || index.row() >= m_markers.size())
         return {};
 
-    const QRectF &rect = m_markers.at(index.row());
+    const MarkerData &m = m_markers.at(index.row());
     switch (role) {
-    case MarkerXRole:      return rect.x();
-    case MarkerYRole:      return rect.y();
-    case MarkerWidthRole:  return rect.width();
-    case MarkerHeightRole: return rect.height();
+    case MarkerIdRole:      return m.id;
+    case MarkerLabelRole:   return QStringLiteral("Marker #%1").arg(m.id);
+    case MarkerXRole:       return m.rect.x();
+    case MarkerYRole:       return m.rect.y();
+    case MarkerWidthRole:   return m.rect.width();
+    case MarkerHeightRole:  return m.rect.height();
     }
     return {};
 }
@@ -30,10 +32,12 @@ QVariant MarkerModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> MarkerModel::roleNames() const
 {
     return {
-        { MarkerXRole,      "markerX" },
-        { MarkerYRole,      "markerY" },
-        { MarkerWidthRole,  "markerWidth" },
-        { MarkerHeightRole, "markerHeight" },
+        { MarkerIdRole,      "markerId" },
+        { MarkerLabelRole,   "markerLabel" },
+        { MarkerXRole,       "markerX" },
+        { MarkerYRole,       "markerY" },
+        { MarkerWidthRole,   "markerWidth" },
+        { MarkerHeightRole,  "markerHeight" },
     };
 }
 
@@ -42,35 +46,63 @@ int MarkerModel::count() const
     return m_markers.size();
 }
 
-int MarkerModel::addMarker(qreal x, qreal y, qreal w, qreal h)
+int MarkerModel::selectedMarkerId() const
 {
-    int row = m_markers.size();
-    beginInsertRows(QModelIndex(), row, row);
-    m_markers.append(QRectF(x, y, w, h));
-    endInsertRows();
-    emit countChanged();
-    return row;
+    return m_selectedMarkerId;
 }
 
-void MarkerModel::updateMarker(int index, qreal x, qreal y, qreal w, qreal h)
+void MarkerModel::setSelectedMarkerId(int id)
 {
-    if (index < 0 || index >= m_markers.size())
+    if (m_selectedMarkerId == id)
+        return;
+    m_selectedMarkerId = id;
+    emit selectedMarkerIdChanged();
+}
+
+int MarkerModel::indexOfId(int id) const
+{
+    for (int i = 0; i < m_markers.size(); ++i) {
+        if (m_markers[i].id == id)
+            return i;
+    }
+    return -1;
+}
+
+int MarkerModel::addMarker(qreal x, qreal y, qreal w, qreal h)
+{
+    int id = m_nextId++;
+    int row = m_markers.size();
+    beginInsertRows(QModelIndex(), row, row);
+    m_markers.append({ id, QRectF(x, y, w, h) });
+    endInsertRows();
+    emit countChanged();
+    return id;
+}
+
+void MarkerModel::updateMarker(int id, qreal x, qreal y, qreal w, qreal h)
+{
+    int row = indexOfId(id);
+    if (row < 0)
         return;
 
-    m_markers[index] = QRectF(x, y, w, h);
-    QModelIndex mi = createIndex(index, 0);
+    m_markers[row].rect = QRectF(x, y, w, h);
+    QModelIndex mi = createIndex(row, 0);
     emit dataChanged(mi, mi);
 }
 
-void MarkerModel::removeMarker(int index)
+void MarkerModel::removeMarker(int id)
 {
-    if (index < 0 || index >= m_markers.size())
+    int row = indexOfId(id);
+    if (row < 0)
         return;
 
-    beginRemoveRows(QModelIndex(), index, index);
-    m_markers.removeAt(index);
+    beginRemoveRows(QModelIndex(), row, row);
+    m_markers.removeAt(row);
     endRemoveRows();
     emit countChanged();
+
+    if (m_selectedMarkerId == id)
+        setSelectedMarkerId(-1);
 }
 
 void MarkerModel::clear()
@@ -82,4 +114,33 @@ void MarkerModel::clear()
     m_markers.clear();
     endResetModel();
     emit countChanged();
+
+    setSelectedMarkerId(-1);
+}
+
+QVariantList MarkerModel::markersAtPoint(qreal x, qreal y) const
+{
+    QVariantList result;
+    // Reverse order: last added (topmost in z-order) first
+    for (int i = m_markers.size() - 1; i >= 0; --i) {
+        if (m_markers[i].rect.contains(x, y))
+            result.append(m_markers[i].id);
+    }
+    return result;
+}
+
+QVariantMap MarkerModel::markerInfo(int id) const
+{
+    int row = indexOfId(id);
+    if (row < 0)
+        return {};
+
+    const MarkerData &m = m_markers[row];
+    return {
+        { "id",     m.id },
+        { "x",      m.rect.x() },
+        { "y",      m.rect.y() },
+        { "width",  m.rect.width() },
+        { "height", m.rect.height() },
+    };
 }

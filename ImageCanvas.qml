@@ -6,8 +6,6 @@ Item {
     id: canvas
     clip: true
 
-    property int selectedMarkerIndex: -1
-
     // --- Zoom / Pan state ---
     property real zoomLevel: 1.0
     property real panX: 0.0
@@ -118,7 +116,7 @@ Item {
                 return
             }
 
-            canvas.selectedMarkerIndex = -1
+            MarkerModel.selectedMarkerId = -1
             drawing = true
             startX = mouse.x
             startY = mouse.y
@@ -164,10 +162,8 @@ Item {
             let iw = canvas.displayToImageW(previewRect.width)
             let ih = canvas.displayToImageH(previewRect.height)
 
-            // Single marker mode: replace existing
-            MarkerModel.clear()
-            let idx = MarkerModel.addMarker(ix, iy, iw, ih)
-            canvas.selectedMarkerIndex = idx
+            let id = MarkerModel.addMarker(ix, iy, iw, ih)
+            MarkerModel.selectedMarkerId = id
         }
     }
 
@@ -187,12 +183,14 @@ Item {
         delegate: Item {
             id: markerDelegate
             required property int index
+            required property int markerId
             required property real markerX
             required property real markerY
             required property real markerWidth
             required property real markerHeight
 
-            readonly property bool isSelected: canvas.selectedMarkerIndex === index
+            readonly property bool isSelected: MarkerModel.selectedMarkerId === markerId
+            z: isSelected ? 1 : 0
 
             x: canvas.imageToDisplayX(markerX)
             y: canvas.imageToDisplayY(markerY)
@@ -212,8 +210,7 @@ Item {
                 MenuItem {
                     text: qsTr("削除")
                     onTriggered: {
-                        MarkerModel.removeMarker(markerDelegate.index)
-                        canvas.selectedMarkerIndex = -1
+                        MarkerModel.removeMarker(markerDelegate.markerId)
                     }
                 }
             }
@@ -232,11 +229,11 @@ Item {
 
                 onPressed: function(mouse) {
                     if (mouse.button === Qt.RightButton) {
-                        canvas.selectedMarkerIndex = markerDelegate.index
+                        MarkerModel.selectedMarkerId = markerDelegate.markerId
                         markerContextMenu.popup()
                         return
                     }
-                    canvas.selectedMarkerIndex = markerDelegate.index
+                    MarkerModel.selectedMarkerId = markerDelegate.markerId
                     let pos = mapToItem(canvas, mouse.x, mouse.y)
                     dragStartX = pos.x
                     dragStartY = pos.y
@@ -251,7 +248,19 @@ Item {
                     let newIx = origImgX + canvas.displayToImageW(dx)
                     let newIy = origImgY + canvas.displayToImageH(dy)
                     let c = canvas.clampRect(newIx, newIy, markerDelegate.markerWidth, markerDelegate.markerHeight)
-                    MarkerModel.updateMarker(markerDelegate.index, c.x, c.y, c.width, c.height)
+                    MarkerModel.updateMarker(markerDelegate.markerId, c.x, c.y, c.width, c.height)
+                }
+
+                onDoubleClicked: function(mouse) {
+                    if (mouse.button !== Qt.LeftButton) return
+                    let pos = mapToItem(canvas, mouse.x, mouse.y)
+                    let imgX = canvas.displayToImageX(pos.x)
+                    let imgY = canvas.displayToImageY(pos.y)
+                    let ids = MarkerModel.markersAtPoint(imgX, imgY)
+                    if (ids.length <= 1) return
+                    let currentIdx = ids.indexOf(MarkerModel.selectedMarkerId)
+                    let nextIdx = (currentIdx + 1) % ids.length
+                    MarkerModel.selectedMarkerId = ids[nextIdx]
                 }
             }
 
@@ -343,7 +352,7 @@ Item {
                             if (ny + nh > ImageManager.imageHeight)
                                 nh = ImageManager.imageHeight - ny
 
-                            MarkerModel.updateMarker(markerDelegate.index, nx, ny, nw, nh)
+                            MarkerModel.updateMarker(markerDelegate.markerId, nx, ny, nw, nh)
                         }
                     }
                 }
@@ -354,18 +363,17 @@ Item {
     // Delete selected marker
     Shortcut {
         sequence: "Delete"
-        enabled: canvas.selectedMarkerIndex >= 0
+        enabled: MarkerModel.selectedMarkerId >= 0
         onActivated: {
-            MarkerModel.removeMarker(canvas.selectedMarkerIndex)
-            canvas.selectedMarkerIndex = -1
+            MarkerModel.removeMarker(MarkerModel.selectedMarkerId)
         }
     }
 
     // Deselect on Escape
     Shortcut {
         sequence: "Escape"
-        enabled: canvas.selectedMarkerIndex >= 0
-        onActivated: canvas.selectedMarkerIndex = -1
+        enabled: MarkerModel.selectedMarkerId >= 0
+        onActivated: MarkerModel.selectedMarkerId = -1
     }
 
     // Reset zoom/pan with Ctrl+0

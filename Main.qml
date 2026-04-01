@@ -80,6 +80,52 @@ Window {
                 color: "#3a3a3a"
             }
 
+            // Marker selector (left side)
+            Row {
+                anchors.left: parent.left
+                anchors.leftMargin: 8
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 6
+
+                ComboBox {
+                    id: markerSelector
+                    anchors.verticalCenter: parent.verticalCenter
+                    implicitWidth: 160
+                    implicitHeight: 28
+                    model: MarkerModel
+                    textRole: "markerLabel"
+                    valueRole: "markerId"
+
+                    displayText: MarkerModel.selectedMarkerId >= 0
+                        ? "Marker #" + MarkerModel.selectedMarkerId
+                        : qsTr("マーカー選択")
+
+                    onActivated: function(index) {
+                        MarkerModel.selectedMarkerId = currentValue
+                    }
+
+                    Connections {
+                        target: MarkerModel
+                        function onSelectedMarkerIdChanged() {
+                            if (MarkerModel.selectedMarkerId < 0) {
+                                markerSelector.currentIndex = -1
+                            } else {
+                                markerSelector.currentIndex = markerSelector.indexOfValue(MarkerModel.selectedMarkerId)
+                            }
+                        }
+                    }
+                }
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: MarkerModel.count > 0
+                        ? qsTr("%1 個のマーカー").arg(MarkerModel.count)
+                        : ""
+                    color: "#888888"
+                    font.pixelSize: 12
+                }
+            }
+
             Row {
                 anchors.right: parent.right
                 anchors.rightMargin: 8
