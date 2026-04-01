@@ -10,6 +10,7 @@ Menu {
     property int targetShapeType: 0
 
     signal adjustCornerRadiusRequested(int markerId)
+    signal selectModeRequested(int markerId)
 
     palette.window: Theme.panelBg
     palette.text: Theme.textPrimary
@@ -30,6 +31,14 @@ Menu {
             let newType = root.targetShapeType === 0 ? 1 : 0
             MarkerModel.updateMarkerShapeType(root.targetMarkerId, newType)
         }
+    }
+    MenuItem {
+        text: qsTr("Select Mode")
+        palette.text: Theme.textPrimary
+        palette.windowText: Theme.textPrimary
+        palette.buttonText: Theme.textPrimary
+        palette.highlightedText: Theme.textPrimary
+        onTriggered: root.selectModeRequested(root.targetMarkerId)
     }
     MenuItem {
         text: qsTr("Adjust Corner Radius")

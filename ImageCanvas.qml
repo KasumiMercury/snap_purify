@@ -190,6 +190,7 @@ Item {
             required property real markerHeight
             required property real markerCornerRadius
             required property int markerShapeType
+            required property int markerMode
 
             readonly property bool isSelected: MarkerModel.selectedMarkerId === markerId
             z: isSelected ? 1 : 0
@@ -385,6 +386,24 @@ Item {
         }
     }
 
+    function openModePopup(markerId) {
+        let info = MarkerModel.markerInfo(markerId)
+        if (!info) return
+        modePopup.targetMarkerId = markerId
+        modePopup.currentMode = info.mode || 0
+        let px = canvas.imageToDisplayX(info.x + info.width) + 8
+        let py = canvas.imageToDisplayY(info.y)
+        if (px + modePopup.width > canvas.width)
+            px = canvas.imageToDisplayX(info.x) - modePopup.width - 8
+        if (py + modePopup.height > canvas.height)
+            py = canvas.height - modePopup.height
+        if (px < 0) px = 0
+        if (py < 0) py = 0
+        modePopup.x = px
+        modePopup.y = py
+        modePopup.open()
+    }
+
     function openRadiusPopup(markerId) {
         let info = MarkerModel.markerInfo(markerId)
         if (!info || !info.width) return
@@ -406,6 +425,76 @@ Item {
         radiusPopup.x = px
         radiusPopup.y = py
         radiusPopup.open()
+    }
+
+    Popup {
+        id: modePopup
+        width: 160
+        height: modeColumn.implicitHeight + 16
+        modal: false
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        property int targetMarkerId: -1
+        property int currentMode: 0
+
+        background: Rectangle {
+            color: Theme.panelBg
+            border.color: Theme.borderColor
+            border.width: 1
+            radius: 6
+        }
+
+        contentItem: Column {
+            id: modeColumn
+            spacing: 2
+            padding: 4
+
+            Text {
+                text: qsTr("Mode")
+                color: Theme.textSecondary
+                font.pixelSize: 11
+                leftPadding: 4
+            }
+
+            Repeater {
+                model: [
+                    { value: 0, label: qsTr("Fill") },
+                    { value: 1, label: qsTr("Mosaic") },
+                    { value: 2, label: qsTr("Crop") },
+                ]
+                delegate: Rectangle {
+                    required property var modelData
+                    required property int index
+                    width: 144
+                    height: 28
+                    radius: 4
+                    color: modeItemMa.containsMouse
+                           ? Theme.controlHoverBg
+                           : (modelData.value === modePopup.currentMode ? Theme.selectionBg : "transparent")
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        leftPadding: 8
+                        text: parent.modelData.label
+                        color: parent.modelData.value === modePopup.currentMode ? Theme.accent : Theme.textPrimary
+                        font.pixelSize: 12
+                        font.bold: parent.modelData.value === modePopup.currentMode
+                    }
+
+                    MouseArea {
+                        id: modeItemMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            MarkerModel.updateMarkerMode(modePopup.targetMarkerId, parent.modelData.value)
+                            modePopup.currentMode = parent.modelData.value
+                            modePopup.close()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     Popup {
@@ -481,6 +570,9 @@ Item {
         showGlobalActions: true
         onAdjustCornerRadiusRequested: function(markerId) {
             canvas.openRadiusPopup(markerId)
+        }
+        onSelectModeRequested: function(markerId) {
+            canvas.openModePopup(markerId)
         }
     }
 

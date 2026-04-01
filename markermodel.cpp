@@ -27,6 +27,7 @@ QVariant MarkerModel::data(const QModelIndex &index, int role) const
     case MarkerHeightRole:  return m.rect.height();
     case MarkerCornerRadiusRole: return m.cornerRadius;
     case MarkerShapeTypeRole: return m.shapeType;
+    case MarkerModeRole: return m.mode;
     }
     return {};
 }
@@ -42,6 +43,7 @@ QHash<int, QByteArray> MarkerModel::roleNames() const
         { MarkerHeightRole,  "markerHeight" },
         { MarkerCornerRadiusRole, "markerCornerRadius" },
         { MarkerShapeTypeRole, "markerShapeType" },
+        { MarkerModeRole, "markerMode" },
     };
 }
 
@@ -121,6 +123,17 @@ void MarkerModel::updateMarkerShapeType(int id, int shapeType)
     emit dataChanged(mi, mi);
 }
 
+void MarkerModel::updateMarkerMode(int id, int mode)
+{
+    int row = indexOfId(id);
+    if (row < 0)
+        return;
+
+    m_markers[row].mode = qBound(0, mode, 2);
+    QModelIndex mi = createIndex(row, 0);
+    emit dataChanged(mi, mi);
+}
+
 void MarkerModel::removeMarker(int id)
 {
     int row = indexOfId(id);
@@ -175,5 +188,6 @@ QVariantMap MarkerModel::markerInfo(int id) const
         { "height", m.rect.height() },
         { "cornerRadius", m.cornerRadius },
         { "shapeType", m.shapeType },
+        { "mode", m.mode },
     };
 }

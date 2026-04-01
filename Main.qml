@@ -258,6 +258,9 @@ Window {
                     required property real markerWidth
                     required property real markerHeight
                     required property int markerShapeType
+                    required property int markerMode
+
+                    readonly property var modeLabels: ["Fill", "Mosaic", "Crop"]
 
                     width: markerListView.width
                     height: 32
@@ -278,11 +281,7 @@ Window {
                         anchors.right: parent.right
                         anchors.rightMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
-                        text: "(%1, %2, %3\u00d7%4)"
-                            .arg(Math.round(parent.markerX))
-                            .arg(Math.round(parent.markerY))
-                            .arg(Math.round(parent.markerWidth))
-                            .arg(Math.round(parent.markerHeight))
+                        text: parent.modeLabels[parent.markerMode] || ""
                         color: Theme.textSecondary
                         font.pixelSize: 11
                     }
@@ -312,6 +311,9 @@ Window {
                 showGlobalActions: false
                 onAdjustCornerRadiusRequested: function(markerId) {
                     imageCanvas.openRadiusPopup(markerId)
+                }
+                onSelectModeRequested: function(markerId) {
+                    imageCanvas.openModePopup(markerId)
                 }
             }
 

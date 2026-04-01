@@ -13,6 +13,7 @@ struct MarkerData {
     QRectF rect;
     qreal cornerRadius = 0.0;
     int shapeType = 0; // 0 = rectangle, 1 = ellipse
+    int mode = 0;      // 0 = fill, 1 = mosaic, 2 = crop
 };
 
 class MarkerModel : public QAbstractListModel
@@ -31,6 +32,7 @@ public:
         MarkerHeightRole,
         MarkerCornerRadiusRole,
         MarkerShapeTypeRole,
+        MarkerModeRole,
     };
 
     explicit MarkerModel(QObject *parent = nullptr);
@@ -48,6 +50,7 @@ public:
     Q_INVOKABLE void updateMarker(int id, qreal x, qreal y, qreal w, qreal h);
     Q_INVOKABLE void updateMarkerCornerRadius(int id, qreal radius);
     Q_INVOKABLE void updateMarkerShapeType(int id, int shapeType);
+    Q_INVOKABLE void updateMarkerMode(int id, int mode);
     Q_INVOKABLE void removeMarker(int id);
     Q_INVOKABLE void clear();
 
