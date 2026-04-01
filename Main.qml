@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import snap_purify
 
 Window {
@@ -10,6 +11,16 @@ Window {
            ? qsTr("snap_purify — %1").arg(ImageManager.fileName)
            : qsTr("snap_purify")
     color: "#1e1e1e"
+
+    readonly property real zoomMinLog: Math.log(0.1)
+    readonly property real zoomMaxLog: Math.log(20)
+
+    function zoomToSlider(zoom) {
+        return (Math.log(zoom) - zoomMinLog) / (zoomMaxLog - zoomMinLog)
+    }
+    function sliderToZoom(val) {
+        return Math.exp(zoomMinLog + val * (zoomMaxLog - zoomMinLog))
+    }
 
     Shortcut {
         sequence: StandardKey.Paste
@@ -43,8 +54,174 @@ Window {
         }
 
         ImageCanvas {
-            anchors.fill: parent
+            id: imageCanvas
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: toolbar.top
             visible: ImageManager.hasImage
+        }
+
+        // --- Bottom toolbar ---
+        Rectangle {
+            id: toolbar
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            height: 36
+            color: "#2a2a2a"
+            visible: ImageManager.hasImage
+
+            Rectangle {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                height: 1
+                color: "#3a3a3a"
+            }
+
+            Row {
+                anchors.right: parent.right
+                anchors.rightMargin: 8
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 6
+
+                // Zoom percentage
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: Math.round(imageCanvas.zoomLevel * 100) + "%"
+                    color: "#cccccc"
+                    font.pixelSize: 12
+                    width: 40
+                    horizontalAlignment: Text.AlignRight
+                }
+
+                // Zoom out button
+                Rectangle {
+                    width: 24; height: 24
+                    radius: 4
+                    color: zoomOutMa.containsMouse ? "#4a4a4a" : "#3a3a3a"
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "\u2212"
+                        color: "#cccccc"
+                        font.pixelSize: 16
+                    }
+                    MouseArea {
+                        id: zoomOutMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: imageCanvas.zoomAt(
+                            imageCanvas.width / 2, imageCanvas.height / 2, 1 / 1.25)
+                    }
+                }
+
+                // Zoom slider
+                Slider {
+                    id: zoomSlider
+                    anchors.verticalCenter: parent.verticalCenter
+                    implicitWidth: 150
+                    implicitHeight: 24
+                    from: 0; to: 1
+                    stepSize: 0
+                    padding: 0
+
+                    onMoved: {
+                        let newZoom = root.sliderToZoom(value)
+                        imageCanvas.zoomAt(
+                            imageCanvas.width / 2, imageCanvas.height / 2,
+                            newZoom / imageCanvas.zoomLevel)
+                    }
+
+                    Connections {
+                        target: imageCanvas
+                        function onZoomLevelChanged() {
+                            if (!zoomSlider.pressed)
+                                zoomSlider.value = root.zoomToSlider(imageCanvas.zoomLevel)
+                        }
+                    }
+
+                    Component.onCompleted: value = root.zoomToSlider(1.0)
+
+                    background: Rectangle {
+                        implicitWidth: 150
+                        implicitHeight: 4
+                        y: (zoomSlider.height - height) / 2
+                        width: zoomSlider.availableWidth
+                        height: 4
+                        radius: 2
+                        color: "#4a4a4a"
+
+                        Rectangle {
+                            width: zoomSlider.visualPosition * parent.width
+                            height: parent.height
+                            radius: 2
+                            color: "#00aaff"
+                        }
+                    }
+
+                    handle: Rectangle {
+                        x: zoomSlider.visualPosition * (zoomSlider.availableWidth - width)
+                        y: (zoomSlider.height - height) / 2
+                        width: 14; height: 14
+                        radius: 7
+                        color: zoomSlider.pressed ? "#ffffff" : "#cccccc"
+                    }
+                }
+
+                // Zoom in button
+                Rectangle {
+                    width: 24; height: 24
+                    radius: 4
+                    color: zoomInMa.containsMouse ? "#4a4a4a" : "#3a3a3a"
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "+"
+                        color: "#cccccc"
+                        font.pixelSize: 16
+                    }
+                    MouseArea {
+                        id: zoomInMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: imageCanvas.zoomAt(
+                            imageCanvas.width / 2, imageCanvas.height / 2, 1.25)
+                    }
+                }
+
+                // Reset button
+                Rectangle {
+                    width: resetText.width + 16; height: 24
+                    radius: 4
+                    color: resetMa.containsMouse ? "#4a4a4a" : "#3a3a3a"
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        id: resetText
+                        anchors.centerIn: parent
+                        text: "Reset"
+                        color: "#cccccc"
+                        font.pixelSize: 12
+                    }
+                    MouseArea {
+                        id: resetMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            imageCanvas.zoomLevel = 1.0
+                            imageCanvas.panX = 0
+                            imageCanvas.panY = 0
+                        }
+                    }
+                }
+            }
         }
     }
 }
