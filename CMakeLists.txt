@@ -17,12 +17,15 @@ qt_add_executable(appsnap_purify
     markermodel.cpp
 )
 
+set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+
 qt_add_qml_module(appsnap_purify
     URI snap_purify
     QML_FILES
         Main.qml
         ImageCanvas.qml
         MarkerContextMenu.qml
+        Theme.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

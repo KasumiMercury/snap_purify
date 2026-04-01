@@ -8,9 +8,21 @@ Menu {
     required property int targetMarkerId
     property bool showGlobalActions: false
 
+    palette.window: Theme.panelBg
+    palette.text: Theme.textPrimary
+    palette.windowText: Theme.textPrimary
+    palette.buttonText: Theme.textPrimary
+    palette.highlight: Theme.controlHoverBg
+    palette.highlightedText: Theme.textPrimary
+    palette.mid: Theme.borderColor
+
     // --- Marker-specific actions ---
     MenuItem {
         text: qsTr("削除")
+        palette.text: Theme.textPrimary
+        palette.windowText: Theme.textPrimary
+        palette.buttonText: Theme.textPrimary
+        palette.highlightedText: Theme.textPrimary
         onTriggered: MarkerModel.removeMarker(root.targetMarkerId)
     }
 
@@ -18,6 +30,7 @@ Menu {
     MenuSeparator {
         visible: root.showGlobalActions
         height: visible ? implicitHeight : -root.spacing
+        palette.mid: Theme.borderColor
     }
     // Future global actions go here
 }

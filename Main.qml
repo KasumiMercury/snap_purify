@@ -10,7 +10,7 @@ Window {
     title: ImageManager.hasImage
            ? qsTr("snap_purify — %1").arg(ImageManager.fileName)
            : qsTr("snap_purify")
-    color: "#1e1e1e"
+    color: Theme.windowBg
 
     readonly property real zoomMinLog: Math.log(0.1)
     readonly property real zoomMaxLog: Math.log(20)
@@ -45,19 +45,67 @@ Window {
             }
         }
 
+        // --- Top toolbar ---
+        Rectangle {
+            id: topToolbar
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            height: 36
+            color: Theme.panelBg
+            z: 1
+
+            Rectangle {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                height: 1
+                color: Theme.controlBg
+            }
+
+            Row {
+                anchors.right: parent.right
+                anchors.rightMargin: 8
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 6
+
+                // Theme toggle button
+                Rectangle {
+                    width: 24; height: 24
+                    radius: 4
+                    color: themeMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: Theme.isDark ? "\u263E" : "\u2600"
+                        color: Theme.textPrimary
+                        font.pixelSize: 14
+                    }
+                    MouseArea {
+                        id: themeMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Theme.isDark = !Theme.isDark
+                    }
+                }
+            }
+        }
+
         Text {
             anchors.centerIn: parent
             visible: !ImageManager.hasImage
             text: qsTr("Drop Image")
             font.pixelSize: 24
-            color: "#888888"
+            color: Theme.textSecondary
         }
 
         ImageCanvas {
             id: imageCanvas
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.top: parent.top
+            anchors.top: topToolbar.bottom
             anchors.bottom: toolbar.top
             visible: ImageManager.hasImage
         }
@@ -71,8 +119,8 @@ Window {
             width: 240
             height: 300
             z: 10
-            color: "#2a2a2a"
-            border.color: "#555555"
+            color: Theme.panelBg
+            border.color: Theme.borderColor
             border.width: 1
             radius: 6
 
@@ -86,7 +134,7 @@ Window {
                 anchors.right: parent.right
                 anchors.top: parent.top
                 height: 28
-                color: "#333333"
+                color: Theme.titleBarBg
                 radius: 6
 
                 // Square off bottom corners
@@ -103,7 +151,7 @@ Window {
                     anchors.leftMargin: 10
                     anchors.verticalCenter: parent.verticalCenter
                     text: qsTr("マーカー一覧")
-                    color: "#cccccc"
+                    color: Theme.textPrimary
                     font.pixelSize: 12
                     font.bold: true
                 }
@@ -115,12 +163,12 @@ Window {
                     anchors.verticalCenter: parent.verticalCenter
                     width: 20; height: 20
                     radius: 3
-                    color: closeMa.containsMouse ? "#aa3333" : "transparent"
+                    color: closeMa.containsMouse ? Theme.destructive : "transparent"
 
                     Text {
                         anchors.centerIn: parent
                         text: "\u2715"
-                        color: "#cccccc"
+                        color: Theme.textPrimary
                         font.pixelSize: 12
                     }
                     MouseArea {
@@ -180,8 +228,8 @@ Window {
                     contentItem: Rectangle {
                         implicitWidth: 6
                         radius: 3
-                        color: markerScrollBar.pressed ? "#888888"
-                            : markerScrollBar.hovered ? "#777777" : "#555555"
+                        color: markerScrollBar.pressed ? Theme.scrollbarPressed
+                            : markerScrollBar.hovered ? Theme.scrollbarHover : Theme.scrollbarDefault
                     }
 
                     background: Rectangle {
@@ -201,14 +249,14 @@ Window {
                     width: markerListView.width
                     height: 32
                     color: MarkerModel.selectedMarkerId === markerId
-                        ? "#003d66" : (listItemMa.containsMouse ? "#3a3a3a" : "transparent")
+                        ? Theme.selectionBg : (listItemMa.containsMouse ? Theme.controlBg : "transparent")
 
                     Text {
                         anchors.left: parent.left
                         anchors.leftMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
                         text: "Marker #" + parent.markerId
-                        color: MarkerModel.selectedMarkerId === parent.markerId ? "#00aaff" : "#cccccc"
+                        color: MarkerModel.selectedMarkerId === parent.markerId ? Theme.accent : Theme.textPrimary
                         font.pixelSize: 12
                         font.bold: MarkerModel.selectedMarkerId === parent.markerId
                     }
@@ -222,7 +270,7 @@ Window {
                             .arg(Math.round(parent.markerY))
                             .arg(Math.round(parent.markerWidth))
                             .arg(Math.round(parent.markerHeight))
-                        color: "#888888"
+                        color: Theme.textSecondary
                         font.pixelSize: 11
                     }
 
@@ -260,7 +308,7 @@ Window {
                 Text {
                     anchors.centerIn: parent
                     text: "\u25E2"
-                    color: resizeMa.containsMouse ? "#888888" : "#555555"
+                    color: resizeMa.containsMouse ? Theme.scrollbarHover : Theme.borderColor
                     font.pixelSize: 12
                 }
 
@@ -298,7 +346,7 @@ Window {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             height: 36
-            color: "#2a2a2a"
+            color: Theme.panelBg
             visible: ImageManager.hasImage
 
             Rectangle {
@@ -306,7 +354,7 @@ Window {
                 anchors.right: parent.right
                 anchors.top: parent.top
                 height: 1
-                color: "#3a3a3a"
+                color: Theme.controlBg
             }
 
             // Marker list toggle (left side)
@@ -317,14 +365,14 @@ Window {
                 width: markerCountText.width + 16
                 height: 24
                 radius: 4
-                color: markerCountMa.containsMouse ? "#4a4a4a" : "#3a3a3a"
+                color: markerCountMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
                 visible: MarkerModel.count > 0
 
                 Text {
                     id: markerCountText
                     anchors.centerIn: parent
                     text: qsTr("%1 個のマーカー").arg(MarkerModel.count)
-                    color: markerListPanel.visible ? "#00aaff" : "#cccccc"
+                    color: markerListPanel.visible ? Theme.accent : Theme.textPrimary
                     font.pixelSize: 12
                 }
                 MouseArea {
@@ -346,7 +394,7 @@ Window {
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: Math.round(imageCanvas.zoomLevel * 100) + "%"
-                    color: "#cccccc"
+                    color: Theme.textPrimary
                     font.pixelSize: 12
                     width: 40
                     horizontalAlignment: Text.AlignRight
@@ -356,13 +404,13 @@ Window {
                 Rectangle {
                     width: 24; height: 24
                     radius: 4
-                    color: zoomOutMa.containsMouse ? "#4a4a4a" : "#3a3a3a"
+                    color: zoomOutMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
                     anchors.verticalCenter: parent.verticalCenter
 
                     Text {
                         anchors.centerIn: parent
                         text: "\u2212"
-                        color: "#cccccc"
+                        color: Theme.textPrimary
                         font.pixelSize: 16
                     }
                     MouseArea {
@@ -409,13 +457,13 @@ Window {
                         width: zoomSlider.availableWidth
                         height: 4
                         radius: 2
-                        color: "#4a4a4a"
+                        color: Theme.sliderTrack
 
                         Rectangle {
                             width: zoomSlider.visualPosition * parent.width
                             height: parent.height
                             radius: 2
-                            color: "#00aaff"
+                            color: Theme.accent
                         }
                     }
 
@@ -424,7 +472,7 @@ Window {
                         y: (zoomSlider.height - height) / 2
                         width: 14; height: 14
                         radius: 7
-                        color: zoomSlider.pressed ? "#ffffff" : "#cccccc"
+                        color: zoomSlider.pressed ? Theme.sliderHandlePressed : Theme.sliderHandle
                     }
                 }
 
@@ -432,13 +480,13 @@ Window {
                 Rectangle {
                     width: 24; height: 24
                     radius: 4
-                    color: zoomInMa.containsMouse ? "#4a4a4a" : "#3a3a3a"
+                    color: zoomInMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
                     anchors.verticalCenter: parent.verticalCenter
 
                     Text {
                         anchors.centerIn: parent
                         text: "+"
-                        color: "#cccccc"
+                        color: Theme.textPrimary
                         font.pixelSize: 16
                     }
                     MouseArea {
@@ -455,14 +503,14 @@ Window {
                 Rectangle {
                     width: resetText.width + 16; height: 24
                     radius: 4
-                    color: resetMa.containsMouse ? "#4a4a4a" : "#3a3a3a"
+                    color: resetMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
                     anchors.verticalCenter: parent.verticalCenter
 
                     Text {
                         id: resetText
                         anchors.centerIn: parent
                         text: "Reset"
-                        color: "#cccccc"
+                        color: Theme.textPrimary
                         font.pixelSize: 12
                     }
                     MouseArea {
@@ -477,6 +525,7 @@ Window {
                         }
                     }
                 }
+
             }
         }
     }

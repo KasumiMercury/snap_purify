@@ -172,7 +172,7 @@ Item {
         id: previewRect
         visible: false
         color: "transparent"
-        border.color: "#00aaff"
+        border.color: Theme.accent
         border.width: 2
     }
 
@@ -201,7 +201,7 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 color: "transparent"
-                border.color: markerDelegate.isSelected ? "#00aaff" : "#ffaa00"
+                border.color: markerDelegate.isSelected ? Theme.accent : Theme.markerUnselected
                 border.width: 2
             }
 
@@ -269,7 +269,7 @@ Item {
                     required property var modelData
                     width: 10
                     height: 10
-                    color: markerDelegate.isSelected ? "#00aaff" : "#ffaa00"
+                    color: markerDelegate.isSelected ? Theme.accent : Theme.markerUnselected
                     visible: markerDelegate.isSelected
 
                     x: modelData.hAlign === "left" ? -width / 2 : markerDelegate.width - width / 2

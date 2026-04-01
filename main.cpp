@@ -1,6 +1,5 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-
 #include "imagemanager.h"
 #include "imageprovider.h"
 #include "markermodel.h"
