@@ -18,7 +18,7 @@ Menu {
 
     // --- Marker-specific actions ---
     MenuItem {
-        text: qsTr("削除")
+        text: qsTr("Delete")
         palette.text: Theme.textPrimary
         palette.windowText: Theme.textPrimary
         palette.buttonText: Theme.textPrimary

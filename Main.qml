@@ -71,16 +71,28 @@ Window {
 
                 // Theme toggle button
                 Rectangle {
-                    width: 24; height: 24
+                    width: themeRow.width + 12; height: 24
                     radius: 4
                     color: themeMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
                     anchors.verticalCenter: parent.verticalCenter
 
-                    Text {
+                    Row {
+                        id: themeRow
                         anchors.centerIn: parent
-                        text: Theme.isDark ? "\u263E" : "\u2600"
-                        color: Theme.textPrimary
-                        font.pixelSize: 14
+                        spacing: 4
+
+                        Text {
+                            text: Theme.isDark ? "\u263E" : "\u2600"
+                            color: Theme.textPrimary
+                            font.pixelSize: 14
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Text {
+                            text: qsTr("Theme")
+                            color: Theme.textPrimary
+                            font.pixelSize: 12
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                     }
                     MouseArea {
                         id: themeMa
@@ -150,7 +162,7 @@ Window {
                     anchors.left: parent.left
                     anchors.leftMargin: 10
                     anchors.verticalCenter: parent.verticalCenter
-                    text: qsTr("マーカー一覧")
+                    text: qsTr("Markers")
                     color: Theme.textPrimary
                     font.pixelSize: 12
                     font.bold: true
@@ -371,7 +383,7 @@ Window {
                 Text {
                     id: markerCountText
                     anchors.centerIn: parent
-                    text: qsTr("%1 個のマーカー").arg(MarkerModel.count)
+                    text: qsTr("%1 Markers").arg(MarkerModel.count)
                     color: markerListPanel.visible ? Theme.accent : Theme.textPrimary
                     font.pixelSize: 12
                 }
