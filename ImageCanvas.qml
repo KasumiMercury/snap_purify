@@ -212,6 +212,7 @@ Item {
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                 cursorShape: Qt.SizeAllCursor
 
+                property bool dragging: false
                 property real dragStartX: 0
                 property real dragStartY: 0
                 property real origImgX: 0
@@ -230,9 +231,15 @@ Item {
                     dragStartY = pos.y
                     origImgX = markerDelegate.markerX
                     origImgY = markerDelegate.markerY
+                    dragging = true
+                }
+
+                onReleased: function(mouse) {
+                    dragging = false
                 }
 
                 onPositionChanged: function(mouse) {
+                    if (!dragging) return
                     let pos = mapToItem(canvas, mouse.x, mouse.y)
                     let dx = pos.x - dragStartX
                     let dy = pos.y - dragStartY
