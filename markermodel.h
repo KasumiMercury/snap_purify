@@ -11,6 +11,7 @@
 struct MarkerData {
     int id;
     QRectF rect;
+    qreal cornerRadius = 0.0;
 };
 
 class MarkerModel : public QAbstractListModel
@@ -27,6 +28,7 @@ public:
         MarkerYRole,
         MarkerWidthRole,
         MarkerHeightRole,
+        MarkerCornerRadiusRole,
     };
 
     explicit MarkerModel(QObject *parent = nullptr);
@@ -42,6 +44,7 @@ public:
 
     Q_INVOKABLE int addMarker(qreal x, qreal y, qreal w, qreal h);
     Q_INVOKABLE void updateMarker(int id, qreal x, qreal y, qreal w, qreal h);
+    Q_INVOKABLE void updateMarkerCornerRadius(int id, qreal radius);
     Q_INVOKABLE void removeMarker(int id);
     Q_INVOKABLE void clear();
 

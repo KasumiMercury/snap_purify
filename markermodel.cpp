@@ -25,6 +25,7 @@ QVariant MarkerModel::data(const QModelIndex &index, int role) const
     case MarkerYRole:       return m.rect.y();
     case MarkerWidthRole:   return m.rect.width();
     case MarkerHeightRole:  return m.rect.height();
+    case MarkerCornerRadiusRole: return m.cornerRadius;
     }
     return {};
 }
@@ -38,6 +39,7 @@ QHash<int, QByteArray> MarkerModel::roleNames() const
         { MarkerYRole,       "markerY" },
         { MarkerWidthRole,   "markerWidth" },
         { MarkerHeightRole,  "markerHeight" },
+        { MarkerCornerRadiusRole, "markerCornerRadius" },
     };
 }
 
@@ -86,6 +88,22 @@ void MarkerModel::updateMarker(int id, qreal x, qreal y, qreal w, qreal h)
         return;
 
     m_markers[row].rect = QRectF(x, y, w, h);
+    qreal maxR = qMin(w, h) / 2.0;
+    if (m_markers[row].cornerRadius > maxR)
+        m_markers[row].cornerRadius = maxR;
+    QModelIndex mi = createIndex(row, 0);
+    emit dataChanged(mi, mi);
+}
+
+void MarkerModel::updateMarkerCornerRadius(int id, qreal radius)
+{
+    int row = indexOfId(id);
+    if (row < 0)
+        return;
+
+    const QRectF &r = m_markers[row].rect;
+    qreal maxR = qMin(r.width(), r.height()) / 2.0;
+    m_markers[row].cornerRadius = qBound(0.0, radius, maxR);
     QModelIndex mi = createIndex(row, 0);
     emit dataChanged(mi, mi);
 }
@@ -142,5 +160,6 @@ QVariantMap MarkerModel::markerInfo(int id) const
         { "y",      m.rect.y() },
         { "width",  m.rect.width() },
         { "height", m.rect.height() },
+        { "cornerRadius", m.cornerRadius },
     };
 }

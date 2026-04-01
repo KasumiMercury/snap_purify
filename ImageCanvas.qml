@@ -188,6 +188,7 @@ Item {
             required property real markerY
             required property real markerWidth
             required property real markerHeight
+            required property real markerCornerRadius
 
             readonly property bool isSelected: MarkerModel.selectedMarkerId === markerId
             z: isSelected ? 1 : 0
@@ -203,6 +204,7 @@ Item {
                 color: "transparent"
                 border.color: markerDelegate.isSelected ? Theme.accent : Theme.markerUnselected
                 border.width: 2
+                radius: canvas.imageToDisplayW(markerDelegate.markerCornerRadius)
             }
 
             // Move handle (entire body)
@@ -358,10 +360,103 @@ Item {
         }
     }
 
+    function openRadiusPopup(markerId) {
+        let info = MarkerModel.markerInfo(markerId)
+        if (!info || !info.width) return
+        radiusPopup.targetMarkerId = markerId
+        let maxR = Math.min(info.width, info.height) / 2
+        radiusSlider.from = 0
+        radiusSlider.to = maxR
+        radiusSlider.value = info.cornerRadius || 0
+        // Position near marker's top-right corner
+        let px = canvas.imageToDisplayX(info.x + info.width) + 8
+        let py = canvas.imageToDisplayY(info.y)
+        // Clamp within canvas
+        if (px + radiusPopup.width > canvas.width)
+            px = canvas.imageToDisplayX(info.x) - radiusPopup.width - 8
+        if (py + radiusPopup.height > canvas.height)
+            py = canvas.height - radiusPopup.height
+        if (px < 0) px = 0
+        if (py < 0) py = 0
+        radiusPopup.x = px
+        radiusPopup.y = py
+        radiusPopup.open()
+    }
+
+    Popup {
+        id: radiusPopup
+        width: 240
+        height: 64
+        modal: false
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        property int targetMarkerId: -1
+
+        background: Rectangle {
+            color: Theme.panelBg
+            border.color: Theme.borderColor
+            border.width: 1
+            radius: 6
+        }
+
+        contentItem: Column {
+            spacing: 4
+            padding: 4
+
+            Text {
+                text: qsTr("Corner Radius: %1 px").arg(Math.round(radiusSlider.value))
+                color: Theme.textPrimary
+                font.pixelSize: 12
+            }
+
+            Slider {
+                id: radiusSlider
+                width: 216
+                implicitHeight: 24
+                from: 0
+                to: 100
+                stepSize: 1
+                padding: 0
+
+                onMoved: {
+                    MarkerModel.updateMarkerCornerRadius(radiusPopup.targetMarkerId, value)
+                }
+
+                background: Rectangle {
+                    implicitWidth: 216
+                    implicitHeight: 4
+                    y: (radiusSlider.height - height) / 2
+                    width: radiusSlider.availableWidth
+                    height: 4
+                    radius: 2
+                    color: Theme.sliderTrack
+
+                    Rectangle {
+                        width: radiusSlider.visualPosition * parent.width
+                        height: parent.height
+                        radius: 2
+                        color: Theme.accent
+                    }
+                }
+
+                handle: Rectangle {
+                    x: radiusSlider.visualPosition * (radiusSlider.availableWidth - width)
+                    y: (radiusSlider.height - height) / 2
+                    width: 14; height: 14
+                    radius: 7
+                    color: radiusSlider.pressed ? Theme.sliderHandlePressed : Theme.sliderHandle
+                }
+            }
+        }
+    }
+
     MarkerContextMenu {
         id: canvasMarkerMenu
         targetMarkerId: -1
         showGlobalActions: true
+        onAdjustCornerRadiusRequested: function(markerId) {
+            canvas.openRadiusPopup(markerId)
+        }
     }
 
     // Delete selected marker

@@ -308,6 +308,9 @@ Window {
                 id: listMarkerMenu
                 targetMarkerId: -1
                 showGlobalActions: false
+                onAdjustCornerRadiusRequested: function(markerId) {
+                    imageCanvas.openRadiusPopup(markerId)
+                }
             }
 
             // Resize handle (bottom-right corner)

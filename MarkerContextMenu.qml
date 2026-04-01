@@ -8,6 +8,8 @@ Menu {
     required property int targetMarkerId
     property bool showGlobalActions: false
 
+    signal adjustCornerRadiusRequested(int markerId)
+
     palette.window: Theme.panelBg
     palette.text: Theme.textPrimary
     palette.windowText: Theme.textPrimary
@@ -17,6 +19,14 @@ Menu {
     palette.mid: Theme.borderColor
 
     // --- Marker-specific actions ---
+    MenuItem {
+        text: qsTr("Adjust Corner Radius")
+        palette.text: Theme.textPrimary
+        palette.windowText: Theme.textPrimary
+        palette.buttonText: Theme.textPrimary
+        palette.highlightedText: Theme.textPrimary
+        onTriggered: root.adjustCornerRadiusRequested(root.targetMarkerId)
+    }
     MenuItem {
         text: qsTr("Delete")
         palette.text: Theme.textPrimary
