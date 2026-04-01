@@ -87,7 +87,7 @@ Item {
         id: drawArea
         anchors.fill: parent
         enabled: ImageManager.hasImage
-        acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+        acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
 
         property bool drawing: false
         property real startX: 0
@@ -100,6 +100,12 @@ Item {
         property real panOrigY: 0
 
         onPressed: function(mouse) {
+            // Right button → global context menu
+            if (mouse.button === Qt.RightButton) {
+                canvasGlobalMenu.popup()
+                return
+            }
+
             // Middle button → pan
             if (mouse.button === Qt.MiddleButton) {
                 panning = true
@@ -577,6 +583,13 @@ Item {
         onSelectModeRequested: function(markerId) {
             canvas.openModePopup(markerId)
         }
+    }
+
+    MarkerContextMenu {
+        id: canvasGlobalMenu
+        targetMarkerId: -1
+        showMarkerActions: false
+        showGlobalActions: true
     }
 
     // Delete selected marker

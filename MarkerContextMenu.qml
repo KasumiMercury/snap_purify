@@ -6,6 +6,7 @@ Menu {
     id: root
 
     required property int targetMarkerId
+    property bool showMarkerActions: true
     property bool showGlobalActions: false
     property int targetShapeType: 0
 
@@ -23,6 +24,8 @@ Menu {
     // --- Marker-specific actions ---
     MenuItem {
         text: root.targetShapeType === 0 ? qsTr("Make Ellipse") : qsTr("Make Rectangle")
+        visible: root.showMarkerActions
+        height: visible ? implicitHeight : -root.spacing
         palette.text: Theme.textPrimary
         palette.windowText: Theme.textPrimary
         palette.buttonText: Theme.textPrimary
@@ -34,6 +37,8 @@ Menu {
     }
     MenuItem {
         text: qsTr("Select Mode")
+        visible: root.showMarkerActions
+        height: visible ? implicitHeight : -root.spacing
         palette.text: Theme.textPrimary
         palette.windowText: Theme.textPrimary
         palette.buttonText: Theme.textPrimary
@@ -42,7 +47,7 @@ Menu {
     }
     MenuItem {
         text: qsTr("Adjust Corner Radius")
-        visible: root.targetShapeType === 0
+        visible: root.showMarkerActions && root.targetShapeType === 0
         height: visible ? implicitHeight : -root.spacing
         palette.text: Theme.textPrimary
         palette.windowText: Theme.textPrimary
@@ -52,6 +57,8 @@ Menu {
     }
     MenuItem {
         text: qsTr("Delete")
+        visible: root.showMarkerActions
+        height: visible ? implicitHeight : -root.spacing
         palette.text: Theme.textPrimary
         palette.windowText: Theme.textPrimary
         palette.buttonText: Theme.textPrimary
@@ -61,7 +68,7 @@ Menu {
 
     // --- Global actions (canvas right-click only) ---
     MenuSeparator {
-        visible: root.showGlobalActions
+        visible: root.showMarkerActions && root.showGlobalActions
         height: visible ? implicitHeight : -root.spacing
         palette.mid: Theme.borderColor
     }
