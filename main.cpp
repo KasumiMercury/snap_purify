@@ -2,6 +2,8 @@
 #include <QQmlApplicationEngine>
 #include "imagemanager.h"
 #include "imageprovider.h"
+#include "imageprocessor.h"
+#include "previewprovider.h"
 #include "markermodel.h"
 
 int main(int argc, char *argv[])
@@ -10,11 +12,14 @@ int main(int argc, char *argv[])
 
     auto *imageManager = new ImageManager(&app);
     auto *markerModel = new MarkerModel(&app);
+    auto *imageProcessor = new ImageProcessor(imageManager, markerModel, &app);
 
     QQmlApplicationEngine engine;
     engine.addImageProvider("snapimage", new ImageProvider(imageManager));
+    engine.addImageProvider("snappreview", new PreviewProvider(imageProcessor));
     qmlRegisterSingletonInstance("snap_purify", 1, 0, "ImageManager", imageManager);
     qmlRegisterSingletonInstance("snap_purify", 1, 0, "MarkerModel", markerModel);
+    qmlRegisterSingletonInstance("snap_purify", 1, 0, "ImageProcessor", imageProcessor);
 
     QObject::connect(
         &engine,

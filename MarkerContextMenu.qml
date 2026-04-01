@@ -65,5 +65,14 @@ Menu {
         height: visible ? implicitHeight : -root.spacing
         palette.mid: Theme.borderColor
     }
-    // Future global actions go here
+    MenuItem {
+        text: ImageProcessor.previewEnabled ? qsTr("Hide Preview") : qsTr("Show Preview")
+        visible: root.showGlobalActions
+        height: visible ? implicitHeight : -root.spacing
+        palette.text: Theme.textPrimary
+        palette.windowText: Theme.textPrimary
+        palette.buttonText: Theme.textPrimary
+        palette.highlightedText: Theme.textPrimary
+        onTriggered: ImageProcessor.previewEnabled = !ImageProcessor.previewEnabled
+    }
 }

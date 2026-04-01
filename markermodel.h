@@ -57,6 +57,8 @@ public:
     Q_INVOKABLE QVariantList markersAtPoint(qreal x, qreal y) const;
     Q_INVOKABLE QVariantMap markerInfo(int id) const;
 
+    const QVector<MarkerData>& markers() const;
+
 signals:
     void countChanged();
     void selectedMarkerIdChanged();

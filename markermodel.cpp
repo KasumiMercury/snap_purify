@@ -191,3 +191,8 @@ QVariantMap MarkerModel::markerInfo(int id) const
         { "mode", m.mode },
     };
 }
+
+const QVector<MarkerData>& MarkerModel::markers() const
+{
+    return m_markers;
+}

@@ -15,6 +15,9 @@ qt_add_executable(appsnap_purify
     imageprovider.h
     markermodel.h
     markermodel.cpp
+    imageprocessor.h
+    imageprocessor.cpp
+    previewprovider.h
 )
 
 set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)

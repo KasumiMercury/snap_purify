@@ -59,9 +59,12 @@ Item {
         width: ImageManager.imageWidth * canvas.effectiveScale
         height: ImageManager.imageHeight * canvas.effectiveScale
         visible: ImageManager.hasImage
-        source: ImageManager.hasImage
-                ? "image://snapimage/current?rev=" + ImageManager.revision
-                : ""
+        source: {
+            if (!ImageManager.hasImage) return ""
+            if (ImageProcessor.previewEnabled)
+                return "image://snappreview/current?rev=" + ImageProcessor.previewRevision
+            return "image://snapimage/current?rev=" + ImageManager.revision
+        }
         fillMode: Image.Stretch
         asynchronous: false
         cache: false
