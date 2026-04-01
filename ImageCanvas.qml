@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import snap_purify
 
 Item {
@@ -206,10 +207,22 @@ Item {
                 border.width: 2
             }
 
+            Menu {
+                id: markerContextMenu
+                MenuItem {
+                    text: qsTr("削除")
+                    onTriggered: {
+                        MarkerModel.removeMarker(markerDelegate.index)
+                        canvas.selectedMarkerIndex = -1
+                    }
+                }
+            }
+
             // Move handle (entire body)
             MouseArea {
                 id: moveArea
                 anchors.fill: parent
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
                 cursorShape: Qt.SizeAllCursor
 
                 property real dragStartX: 0
@@ -218,6 +231,11 @@ Item {
                 property real origImgY: 0
 
                 onPressed: function(mouse) {
+                    if (mouse.button === Qt.RightButton) {
+                        canvas.selectedMarkerIndex = markerDelegate.index
+                        markerContextMenu.popup()
+                        return
+                    }
                     canvas.selectedMarkerIndex = markerDelegate.index
                     let pos = mapToItem(canvas, mouse.x, mouse.y)
                     dragStartX = pos.x
