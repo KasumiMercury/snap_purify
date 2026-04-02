@@ -13,6 +13,8 @@ class ImageManager;
 class ImageProcessor : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
     Q_PROPERTY(bool previewEnabled READ previewEnabled WRITE setPreviewEnabled NOTIFY previewEnabledChanged)
     Q_PROPERTY(int previewRevision READ previewRevision NOTIFY previewRevisionChanged)
 

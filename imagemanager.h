@@ -10,6 +10,8 @@
 class ImageManager : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
     Q_PROPERTY(bool hasImage READ hasImage NOTIFY hasImageChanged)
     Q_PROPERTY(int revision READ revision NOTIFY revisionChanged)
     Q_PROPERTY(int imageWidth READ imageWidth NOTIFY imageChanged)

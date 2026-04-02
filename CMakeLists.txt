@@ -10,13 +10,7 @@ qt_standard_project_setup(REQUIRES 6.10)
 
 qt_add_executable(appsnap_purify
     main.cpp
-    imagemanager.h
-    imagemanager.cpp
     imageprovider.h
-    markermodel.h
-    markermodel.cpp
-    imageprocessor.h
-    imageprocessor.cpp
     previewprovider.h
 )
 
@@ -29,6 +23,10 @@ qt_add_qml_module(appsnap_purify
         ImageCanvas.qml
         MarkerContextMenu.qml
         Theme.qml
+    SOURCES
+        imagemanager.h imagemanager.cpp
+        markermodel.h markermodel.cpp
+        imageprocessor.h imageprocessor.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

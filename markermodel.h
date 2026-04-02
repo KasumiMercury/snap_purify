@@ -19,6 +19,8 @@ struct MarkerData {
 class MarkerModel : public QAbstractListModel
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(int selectedMarkerId READ selectedMarkerId WRITE setSelectedMarkerId NOTIFY selectedMarkerIdChanged)
 
