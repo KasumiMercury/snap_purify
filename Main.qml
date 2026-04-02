@@ -376,30 +376,58 @@ Window {
                 color: Theme.controlBg
             }
 
-            // Marker list toggle (left side)
-            Rectangle {
+            // Left side buttons
+            Row {
                 anchors.left: parent.left
                 anchors.leftMargin: 8
                 anchors.verticalCenter: parent.verticalCenter
-                width: markerCountText.width + 16
-                height: 24
-                radius: 4
-                color: markerCountMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
-                visible: MarkerModel.count > 0
+                spacing: 8
 
-                Text {
-                    id: markerCountText
-                    anchors.centerIn: parent
-                    text: qsTr("%1 Markers").arg(MarkerModel.count)
-                    color: markerListPanel.visible ? Theme.accent : Theme.textPrimary
-                    font.pixelSize: 12
+                // Marker list toggle
+                Rectangle {
+                    width: markerCountText.width + 16
+                    height: 24
+                    radius: 4
+                    color: markerCountMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
+                    visible: MarkerModel.count > 0
+
+                    Text {
+                        id: markerCountText
+                        anchors.centerIn: parent
+                        text: qsTr("%1 Markers").arg(MarkerModel.count)
+                        color: markerListPanel.visible ? Theme.accent : Theme.textPrimary
+                        font.pixelSize: 12
+                    }
+                    MouseArea {
+                        id: markerCountMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: markerListPanel.visible = !markerListPanel.visible
+                    }
                 }
-                MouseArea {
-                    id: markerCountMa
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: markerListPanel.visible = !markerListPanel.visible
+
+                // Preview toggle
+                Rectangle {
+                    width: previewToggleText.width + 16
+                    height: 24
+                    radius: 4
+                    color: previewToggleMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
+
+                    Text {
+                        id: previewToggleText
+                        anchors.centerIn: parent
+                        text: ImageProcessor.previewEnabled ? qsTr("Hide Preview") : qsTr("Show Preview")
+                        color: ImageProcessor.previewEnabled ? Theme.accent : Theme.textPrimary
+                        font.pixelSize: 12
+                    }
+                    MouseArea {
+                        id: previewToggleMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: ImageProcessor.previewEnabled = !ImageProcessor.previewEnabled
+                    }
                 }
             }
 
