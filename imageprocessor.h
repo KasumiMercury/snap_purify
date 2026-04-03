@@ -1,10 +1,12 @@
 #ifndef IMAGEPROCESSOR_H
 #define IMAGEPROCESSOR_H
 
+#include <QFileInfo>
 #include <QImage>
 #include <QObject>
 #include <QPainterPath>
 #include <QTimer>
+#include <QUrl>
 #include <QtQml/qqml.h>
 #include "markermodel.h"
 
@@ -29,9 +31,12 @@ public:
 
     static QImage applyMarkers(const QImage &source, const QVector<MarkerData> &markers);
 
+    Q_INVOKABLE bool exportImage(const QUrl &fileUrl);
+
 signals:
     void previewEnabledChanged();
     void previewRevisionChanged();
+    void exportFinished(bool success, const QString &filePath);
 
 private slots:
     void scheduleRegenerate();

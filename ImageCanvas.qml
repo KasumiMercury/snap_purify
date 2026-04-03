@@ -6,6 +6,8 @@ Item {
     id: canvas
     clip: true
 
+    signal exportRequested()
+
     // --- Zoom / Pan state ---
     property real zoomLevel: 1.0
     property real panX: 0.0
@@ -584,6 +586,7 @@ Item {
         onSelectModeRequested: function(markerId) {
             canvas.openModePopup(markerId)
         }
+        onExportRequested: canvas.exportRequested()
     }
 
     MarkerContextMenu {
@@ -591,6 +594,7 @@ Item {
         targetMarkerId: -1
         showMarkerActions: false
         showGlobalActions: true
+        onExportRequested: canvas.exportRequested()
     }
 
     // Delete selected marker

@@ -12,6 +12,7 @@ Menu {
 
     signal adjustCornerRadiusRequested(int markerId)
     signal selectModeRequested(int markerId)
+    signal exportRequested()
 
     palette.window: Theme.panelBg
     palette.text: Theme.textPrimary
@@ -81,5 +82,15 @@ Menu {
         palette.buttonText: Theme.textPrimary
         palette.highlightedText: Theme.textPrimary
         onTriggered: ImageProcessor.previewEnabled = !ImageProcessor.previewEnabled
+    }
+    MenuItem {
+        text: qsTr("Export Image...")
+        visible: root.showGlobalActions && ImageManager.hasImage
+        height: visible ? implicitHeight : -root.spacing
+        palette.text: Theme.textPrimary
+        palette.windowText: Theme.textPrimary
+        palette.buttonText: Theme.textPrimary
+        palette.highlightedText: Theme.textPrimary
+        onTriggered: root.exportRequested()
     }
 }

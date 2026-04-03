@@ -4,7 +4,7 @@ project(snap_purify VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2 QuickDialogs2)
 
 qt_standard_project_setup(REQUIRES 6.10)
 
@@ -41,7 +41,7 @@ set_target_properties(appsnap_purify PROPERTIES
 )
 
 target_link_libraries(appsnap_purify
-    PRIVATE Qt6::Quick Qt6::QuickControls2
+    PRIVATE Qt6::Quick Qt6::QuickControls2 Qt6::QuickDialogs2
 )
 
 install(TARGETS appsnap_purify

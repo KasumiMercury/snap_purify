@@ -151,6 +151,36 @@ void ImageProcessor::applyCutout(QImage &image, const QVector<MarkerData> &marke
     painter.fillPath(cutoutUnion, Qt::transparent);
 }
 
+bool ImageProcessor::exportImage(const QUrl &fileUrl)
+{
+    QString filePath = fileUrl.toLocalFile();
+    if (filePath.isEmpty())
+        return false;
+
+    QImage processed = applyMarkers(m_imageManager->currentImage(),
+                                     m_markerModel->markers());
+    if (processed.isNull()) {
+        emit exportFinished(false, filePath);
+        return false;
+    }
+
+    QString ext = QFileInfo(filePath).suffix().toLower();
+
+    // For formats without transparency support, composite onto black background
+    if (ext == "jpg" || ext == "jpeg" || ext == "bmp") {
+        QImage opaque(processed.size(), QImage::Format_RGB32);
+        opaque.fill(Qt::black);
+        QPainter painter(&opaque);
+        painter.drawImage(0, 0, processed);
+        painter.end();
+        processed = opaque;
+    }
+
+    bool ok = processed.save(filePath);
+    emit exportFinished(ok, filePath);
+    return ok;
+}
+
 void ImageProcessor::applyFill(QImage &image, const MarkerData &marker)
 {
     QPainter painter(&image);

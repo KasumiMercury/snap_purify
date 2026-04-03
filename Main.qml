@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 import snap_purify
 
 Window {
@@ -27,6 +28,25 @@ Window {
     Shortcut {
         sequence: StandardKey.Paste
         onActivated: ImageManager.loadFromClipboard()
+    }
+
+    Shortcut {
+        sequence: "Ctrl+Shift+S"
+        enabled: ImageManager.hasImage
+        onActivated: exportDialog.open()
+    }
+
+    FileDialog {
+        id: exportDialog
+        title: qsTr("Export Image")
+        fileMode: FileDialog.SaveFile
+        nameFilters: [
+            "PNG (*.png)",
+            "JPEG (*.jpg *.jpeg)",
+            "BMP (*.bmp)",
+            "WebP (*.webp)"
+        ]
+        onAccepted: ImageProcessor.exportImage(selectedFile)
     }
 
     DropArea {
@@ -63,6 +83,47 @@ Window {
                 anchors.bottom: parent.bottom
                 height: 1
                 color: Theme.controlBg
+            }
+
+            Row {
+                anchors.left: parent.left
+                anchors.leftMargin: 8
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 6
+
+                Rectangle {
+                    width: exportRow.width + 12; height: 24
+                    radius: 4
+                    color: exportMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
+                    visible: ImageManager.hasImage
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Row {
+                        id: exportRow
+                        anchors.centerIn: parent
+                        spacing: 4
+
+                        Text {
+                            text: "\u2B07"
+                            color: Theme.textPrimary
+                            font.pixelSize: 14
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Text {
+                            text: qsTr("Export")
+                            color: Theme.textPrimary
+                            font.pixelSize: 12
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                    MouseArea {
+                        id: exportMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: exportDialog.open()
+                    }
+                }
             }
 
             Row {
@@ -122,6 +183,7 @@ Window {
             anchors.top: topToolbar.bottom
             anchors.bottom: toolbar.top
             visible: ImageManager.hasImage
+            onExportRequested: exportDialog.open()
         }
 
         // --- Floating marker list panel ---
