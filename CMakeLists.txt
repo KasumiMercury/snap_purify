@@ -27,6 +27,18 @@ qt_add_qml_module(appsnap_purify
         imagemanager.h imagemanager.cpp
         markermodel.h markermodel.cpp
         imageprocessor.h imageprocessor.cpp
+    RESOURCES
+        icons/folder-open.svg
+        icons/download.svg
+        icons/sun.svg
+        icons/moon.svg
+        icons/trash.svg
+        icons/eye.svg
+        icons/eye-off.svg
+        icons/rectangle.svg
+        icons/circle.svg
+        icons/sliders.svg
+        icons/rounded-corner.svg
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

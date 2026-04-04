@@ -25,6 +25,8 @@ Menu {
     // --- Marker-specific actions ---
     MenuItem {
         text: root.targetShapeType === 0 ? qsTr("Make Ellipse") : qsTr("Make Rectangle")
+        icon.source: root.targetShapeType === 0 ? "icons/circle.svg" : "icons/rectangle.svg"
+        icon.color: Theme.textPrimary
         visible: root.showMarkerActions
         height: visible ? implicitHeight : -root.spacing
         palette.text: Theme.textPrimary
@@ -38,6 +40,8 @@ Menu {
     }
     MenuItem {
         text: qsTr("Select Mode")
+        icon.source: "icons/sliders.svg"
+        icon.color: Theme.textPrimary
         visible: root.showMarkerActions
         height: visible ? implicitHeight : -root.spacing
         palette.text: Theme.textPrimary
@@ -48,6 +52,8 @@ Menu {
     }
     MenuItem {
         text: qsTr("Adjust Corner Radius")
+        icon.source: "icons/rounded-corner.svg"
+        icon.color: Theme.textPrimary
         visible: root.showMarkerActions && root.targetShapeType === 0
         height: visible ? implicitHeight : -root.spacing
         palette.text: Theme.textPrimary
@@ -58,6 +64,8 @@ Menu {
     }
     MenuItem {
         text: qsTr("Delete")
+        icon.source: "icons/trash.svg"
+        icon.color: Theme.textPrimary
         visible: root.showMarkerActions
         height: visible ? implicitHeight : -root.spacing
         palette.text: Theme.textPrimary
@@ -75,6 +83,8 @@ Menu {
     }
     MenuItem {
         text: ImageProcessor.previewEnabled ? qsTr("Hide Preview") : qsTr("Show Preview")
+        icon.source: ImageProcessor.previewEnabled ? "icons/eye-off.svg" : "icons/eye.svg"
+        icon.color: Theme.textPrimary
         visible: root.showGlobalActions
         height: visible ? implicitHeight : -root.spacing
         palette.text: Theme.textPrimary
@@ -85,6 +95,8 @@ Menu {
     }
     MenuItem {
         text: qsTr("Export Image...")
+        icon.source: "icons/download.svg"
+        icon.color: Theme.textPrimary
         visible: root.showGlobalActions && ImageManager.hasImage
         height: visible ? implicitHeight : -root.spacing
         palette.text: Theme.textPrimary

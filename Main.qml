@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.impl as ControlsImpl
 import QtQuick.Dialogs
 import snap_purify
 
@@ -117,10 +118,10 @@ Window {
                         anchors.centerIn: parent
                         spacing: 4
 
-                        Text {
-                            text: "\u2B06"
+                        ControlsImpl.IconImage {
+                            source: "icons/folder-open.svg"
                             color: Theme.textPrimary
-                            font.pixelSize: 14
+                            sourceSize: Qt.size(14, 14)
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         Text {
@@ -151,10 +152,10 @@ Window {
                         anchors.centerIn: parent
                         spacing: 4
 
-                        Text {
-                            text: "\u2B07"
+                        ControlsImpl.IconImage {
+                            source: "icons/download.svg"
                             color: Theme.textPrimary
-                            font.pixelSize: 14
+                            sourceSize: Qt.size(14, 14)
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         Text {
@@ -192,10 +193,10 @@ Window {
                         anchors.centerIn: parent
                         spacing: 4
 
-                        Text {
-                            text: Theme.isDark ? "\u263E" : "\u2600"
+                        ControlsImpl.IconImage {
+                            source: Theme.isDark ? "icons/moon.svg" : "icons/sun.svg"
                             color: Theme.textPrimary
-                            font.pixelSize: 14
+                            sourceSize: Qt.size(14, 14)
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         Text {
@@ -521,17 +522,28 @@ Window {
 
                 // Preview toggle
                 Rectangle {
-                    width: previewToggleText.width + 16
+                    width: previewToggleRow.width + 16
                     height: 24
                     radius: 4
                     color: previewToggleMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
 
-                    Text {
-                        id: previewToggleText
+                    Row {
+                        id: previewToggleRow
                         anchors.centerIn: parent
-                        text: ImageProcessor.previewEnabled ? qsTr("Hide Preview") : qsTr("Show Preview")
-                        color: ImageProcessor.previewEnabled ? Theme.accent : Theme.textPrimary
-                        font.pixelSize: 12
+                        spacing: 4
+
+                        ControlsImpl.IconImage {
+                            source: ImageProcessor.previewEnabled ? "icons/eye-off.svg" : "icons/eye.svg"
+                            color: ImageProcessor.previewEnabled ? Theme.accent : Theme.textPrimary
+                            sourceSize: Qt.size(14, 14)
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Text {
+                            text: ImageProcessor.previewEnabled ? qsTr("Hide Preview") : qsTr("Show Preview")
+                            color: ImageProcessor.previewEnabled ? Theme.accent : Theme.textPrimary
+                            font.pixelSize: 12
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                     }
                     MouseArea {
                         id: previewToggleMa
