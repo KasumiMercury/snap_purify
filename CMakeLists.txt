@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.22)
 
 project(snap_purify VERSION 0.1 LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2 QuickDialogs2)
@@ -10,11 +11,11 @@ qt_standard_project_setup(REQUIRES 6.10)
 
 qt_add_executable(appsnap_purify
     main.cpp
-    imageprovider.h
-    previewprovider.h
 )
 
 set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+
+file(GLOB ICON_RESOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} CONFIGURE_DEPENDS icons/*.svg)
 
 qt_add_qml_module(appsnap_purify
     URI snap_purify
@@ -24,21 +25,13 @@ qt_add_qml_module(appsnap_purify
         MarkerContextMenu.qml
         Theme.qml
     SOURCES
+        imageprovider.h
+        previewprovider.h
         imagemanager.h imagemanager.cpp
         markermodel.h markermodel.cpp
         imageprocessor.h imageprocessor.cpp
     RESOURCES
-        icons/folder-open.svg
-        icons/download.svg
-        icons/sun.svg
-        icons/moon.svg
-        icons/trash.svg
-        icons/eye.svg
-        icons/eye-off.svg
-        icons/rectangle.svg
-        icons/circle.svg
-        icons/sliders.svg
-        icons/rounded-corner.svg
+        ${ICON_RESOURCES}
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
