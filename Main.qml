@@ -31,9 +31,24 @@ Window {
     }
 
     Shortcut {
+        sequence: StandardKey.Open
+        onActivated: openDialog.open()
+    }
+
+    Shortcut {
         sequence: "Ctrl+Shift+S"
         enabled: ImageManager.hasImage
         onActivated: exportDialog.open()
+    }
+
+    FileDialog {
+        id: openDialog
+        title: qsTr("Open Image")
+        fileMode: FileDialog.OpenFile
+        nameFilters: [
+            "Images (*.png *.jpg *.jpeg *.bmp *.gif *.webp *.tiff *.tif *.svg)"
+        ]
+        onAccepted: ImageManager.loadFromFile(selectedFile)
     }
 
     FileDialog {
@@ -90,6 +105,39 @@ Window {
                 anchors.leftMargin: 8
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 6
+
+                Rectangle {
+                    width: openRow.width + 12; height: 24
+                    radius: 4
+                    color: openMa.containsMouse ? Theme.controlHoverBg : Theme.controlBg
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Row {
+                        id: openRow
+                        anchors.centerIn: parent
+                        spacing: 4
+
+                        Text {
+                            text: "\u2B06"
+                            color: Theme.textPrimary
+                            font.pixelSize: 14
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Text {
+                            text: qsTr("Open")
+                            color: Theme.textPrimary
+                            font.pixelSize: 12
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                    MouseArea {
+                        id: openMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: openDialog.open()
+                    }
+                }
 
                 Rectangle {
                     width: exportRow.width + 12; height: 24
