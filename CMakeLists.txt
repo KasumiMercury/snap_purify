@@ -11,7 +11,6 @@ qt_standard_project_setup(REQUIRES 6.10)
 
 qt_add_executable(appsnap_purify
     main.cpp
-    cursorhelper.h
 )
 
 set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
@@ -26,6 +25,7 @@ qt_add_qml_module(appsnap_purify
         MarkerContextMenu.qml
         Theme.qml
     SOURCES
+        cursorhelper.h
         imageprovider.h
         previewprovider.h
         imagemanager.h imagemanager.cpp
