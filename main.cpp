@@ -5,6 +5,7 @@
 #include "imageprocessor.h"
 #include "previewprovider.h"
 #include "markermodel.h"
+#include "cursorhelper.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +21,7 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonInstance("snap_purify", 1, 0, "ImageManager", imageManager);
     qmlRegisterSingletonInstance("snap_purify", 1, 0, "MarkerModel", markerModel);
     qmlRegisterSingletonInstance("snap_purify", 1, 0, "ImageProcessor", imageProcessor);
+    qmlRegisterSingletonInstance("snap_purify", 1, 0, "CursorHelper", new CursorHelper(&app));
 
     QObject::connect(
         &engine,

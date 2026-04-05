@@ -397,21 +397,41 @@ Item {
         }
     }
 
+    function calcPopupPosition(popupW, popupH) {
+        let gp = CursorHelper.globalPos()
+        let lp = canvas.mapFromGlobal(gp.x, gp.y)
+        let clickX = lp.x
+        let clickY = lp.y
+        let px, py
+        let fitsRight = clickX + popupW <= canvas.width
+        let fitsBottom = clickY + popupH <= canvas.height
+
+        if (fitsRight && fitsBottom) {
+            px = clickX
+            py = clickY
+        } else if (fitsRight) {
+            px = clickX
+            py = clickY - popupH
+        } else if (fitsBottom) {
+            px = clickX - popupW
+            py = clickY
+        } else {
+            px = clickX - popupW
+            py = clickY - popupH
+        }
+        px = Math.max(0, Math.min(px, canvas.width - popupW))
+        py = Math.max(0, Math.min(py, canvas.height - popupH))
+        return { x: px, y: py }
+    }
+
     function openModePopup(markerId) {
         let info = MarkerModel.markerInfo(markerId)
         if (!info) return
         modePopup.targetMarkerId = markerId
         modePopup.currentMode = info.mode || 0
-        let px = canvas.imageToDisplayX(info.x + info.width) + 8
-        let py = canvas.imageToDisplayY(info.y)
-        if (px + modePopup.width > canvas.width)
-            px = canvas.imageToDisplayX(info.x) - modePopup.width - 8
-        if (py + modePopup.height > canvas.height)
-            py = canvas.height - modePopup.height
-        if (px < 0) px = 0
-        if (py < 0) py = 0
-        modePopup.x = px
-        modePopup.y = py
+        let pos = calcPopupPosition(modePopup.width, modePopup.height)
+        modePopup.x = pos.x
+        modePopup.y = pos.y
         modePopup.open()
     }
 
@@ -423,18 +443,9 @@ Item {
         radiusSlider.from = 0
         radiusSlider.to = maxR
         radiusSlider.value = info.cornerRadius || 0
-        // Position near marker's top-right corner
-        let px = canvas.imageToDisplayX(info.x + info.width) + 8
-        let py = canvas.imageToDisplayY(info.y)
-        // Clamp within canvas
-        if (px + radiusPopup.width > canvas.width)
-            px = canvas.imageToDisplayX(info.x) - radiusPopup.width - 8
-        if (py + radiusPopup.height > canvas.height)
-            py = canvas.height - radiusPopup.height
-        if (px < 0) px = 0
-        if (py < 0) py = 0
-        radiusPopup.x = px
-        radiusPopup.y = py
+        let pos = calcPopupPosition(radiusPopup.width, radiusPopup.height)
+        radiusPopup.x = pos.x
+        radiusPopup.y = pos.y
         radiusPopup.open()
     }
 
